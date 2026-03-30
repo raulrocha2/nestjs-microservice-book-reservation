@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Reservations",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "args": [
+        "${workspaceFolder}/node_modules/@nestjs/cli/bin/nest.js",
+        "start",
+        "--debug",
+        "--watch",
+        "reservations"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "restart": true,
+      "sourceMaps": true,
+      "envFile": "${workspaceFolder}/apps/reservations/.env",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
