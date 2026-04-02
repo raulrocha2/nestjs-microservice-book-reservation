@@ -9,14 +9,19 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.getOrThrow<number>('PAYMENTS_PORT');
   app.connectMicroservice({
-    transport: Transport.TCP,
+    transport: Transport.RMQ,
     options: {
-      host: '0.0.0.0',
-      port,
+      urls: [configService.getOrThrow('RABBITMQ_URI')],
+      queue: configService.getOrThrow('RABBITMQ_QUEUE'),
+      noAck: false,
+      prefetchCount: 1,
+      queueOptions: {
+        durable: true,
+      },
     },
   });
   app.useLogger(app.get(Logger));
   await app.startAllMicroservices();
-  console.info(`Payments TCP microservice is listening on port ${port}`);
+  console.info(`Payments RMQ microservice is listening on queue: ${configService.getOrThrow('RABBITMQ_QUEUE')}`);
 }
 bootstrap();
