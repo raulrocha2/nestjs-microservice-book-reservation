@@ -26,20 +26,24 @@ import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common';
       validationSchema: Joi.object({
         MONGODB_URI: Joi.string().required(),
         RESERVATIONS_PORT: Joi.number().required(),
-        AUTH_HOST: Joi.string().required(),
-        AUTH_TCP_PORT: Joi.number().required(),
-        PAYMENTS_HOST: Joi.string().required(),
-        PAYMENTS_TCP_PORT: Joi.number().required(),
+        RABBITMQ_URI: Joi.string().required(),
+        RABBITMQ_AUTH_QUEUE: Joi.string().required(),
+        RABBITMQ_PAYMENTS_QUEUE: Joi.string().required(),
       }),
     }),
     ClientsModule.registerAsync([
       {
         name: AUTH_SERVICE,
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
+          transport: Transport.RMQ,
           options: {
-            host: configService.getOrThrow('AUTH_HOST'),
-            port: configService.getOrThrow('AUTH_TCP_PORT') as number,
+            urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
+            queue: configService.getOrThrow<string>('RABBITMQ_AUTH_QUEUE'),
+            noAck: false,
+            persistent: true,
+            queueOptions: {
+              durable: true,
+            },
           },
         }),
         inject: [ConfigService],
@@ -47,10 +51,15 @@ import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common';
       {
         name: PAYMENTS_SERVICE,
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
+          transport: Transport.RMQ,
           options: {
-            host: configService.getOrThrow('PAYMENTS_HOST'),
-            port: configService.getOrThrow('PAYMENTS_TCP_PORT') as number,
+            urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
+            queue: configService.getOrThrow<string>('RABBITMQ_PAYMENTS_QUEUE'),
+            noAck: false,
+            persistent: true,
+            queueOptions: {
+              durable: true,
+            },
           },
         }),
         inject: [ConfigService],
