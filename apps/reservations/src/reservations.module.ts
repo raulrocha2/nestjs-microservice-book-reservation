@@ -39,8 +39,6 @@ import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common';
           options: {
             urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
             queue: configService.getOrThrow<string>('RABBITMQ_AUTH_QUEUE'),
-            noAck: false,
-            persistent: true,
             queueOptions: {
               durable: true,
             },
@@ -55,7 +53,6 @@ import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common';
           options: {
             urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
             queue: configService.getOrThrow<string>('RABBITMQ_PAYMENTS_QUEUE'),
-            noAck: false,
             persistent: true,
             queueOptions: {
               durable: true,
