@@ -7,13 +7,11 @@ import { Logger } from 'nestjs-pino';
 async function bootstrap() {
   const app = await NestFactory.create(PaymentsModule);
   const configService = app.get(ConfigService);
-  const port = configService.getOrThrow<number>('PAYMENTS_PORT');
   app.connectMicroservice({
     transport: Transport.RMQ,
     options: {
       urls: [configService.getOrThrow('RABBITMQ_URI')],
       queue: configService.getOrThrow('RABBITMQ_QUEUE'),
-      noAck: false,
       prefetchCount: 1,
       queueOptions: {
         durable: true,
