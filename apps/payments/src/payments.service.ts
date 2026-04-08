@@ -12,11 +12,13 @@ export class PaymentsService {
   constructor(
     private readonly configService: ConfigService,
     @Inject(NOTIFICATIONS_SERVICE)
-    private readonly notificationService: ClientProxy   
+    private readonly notificationService: ClientProxy,
   ) {
-    this.stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY') as string);
+    this.stripe = new Stripe(
+      this.configService.get('STRIPE_SECRET_KEY') as string,
+    );
   }
-  async createCharge({card, amount, email}: PaymentCreateChargeDto) {
+  async createCharge({ card, amount, email }: PaymentCreateChargeDto) {
     let text: string = '';
     const paymentMethod = await this.stripe.paymentMethods.create({
       type: 'card',
@@ -37,7 +39,12 @@ export class PaymentsService {
     } else {
       text = `Charge with id ${paymentIntent.id} amount ${amount} failed`;
     }
-
+    console.log(
+      '-------Payments Service------->',
+      email,
+      text,
+      paymentIntent.id,
+    );
     this.notificationService.emit('notify_email', {
       email,
       text,

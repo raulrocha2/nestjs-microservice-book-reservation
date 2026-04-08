@@ -5,27 +5,28 @@ import { Transporter, createTransport } from 'nodemailer';
 
 @Injectable()
 export class NotificationsService {
-
   private readonly transport: Transporter;
   constructor(private readonly configService: ConfigService) {
     this.transport = createTransport({
-      host: this.configService.get('EMAIL_HOST'),
-      port: this.configService.get('EMAIL_PORT') as number,
+      host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT as string),
       auth: {
-        user: this.configService.get('SMTP_USER'),
-        pass: this.configService.get('SMTP_PASSWORD') as string,
+        user: process.env.GMAIL_EMAIL,
+        pass: process.env.GMAIL_PASSWORD,
       },
     });
   }
-  async notifyEmail({email, text}: NotifyEmailDto) {
-    // Simulate sending an email notification
-    console.log('-------notifyEmail service------->', email, text);
-
-    // await this.transport.sendMail({
-    //   to: email,
-    //   from: 'noreply@example.com',
-    //   subject: 'Notification',
-    //   text,
-    // });
+  async notifyEmail({ email, text }: NotifyEmailDto) {
+    try {
+      await this.transport.sendMail({
+        to: email,
+        from: process.env.EMAIL_FROM,
+        subject: 'Notification',
+        text,
+      });
+      console.log('Email sent successfully to:', email);
+    } catch (error) {
+      console.error('Failed to send email to:', email, error);
+    }
   }
 }

@@ -12,6 +12,7 @@ async function bootstrap() {
       options: {
         urls: [configService.getOrThrow('RABBITMQ_URI')],
         queue: configService.getOrThrow('RABBITMQ_QUEUE'),
+        noAck: false,
         prefetchCount: 1,
         queueOptions: {
           durable: true,
