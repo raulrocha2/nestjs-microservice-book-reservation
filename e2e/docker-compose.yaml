@@ -1,0 +1,58 @@
+services:
+  e2e:
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./specs:/app/specs
+    depends_on:
+      - reservations
+      - auth
+      - payments
+      - notifications
+      - mongo
+      - rabbitmq
+
+  reservations:
+    build:
+      context: ..
+      dockerfile: apps/reservations/Dockerfile
+    env_file:
+      - ../apps/reservations/.env
+    ports:
+      - 3000:3000
+  auth:
+    build:
+      context: ..
+      dockerfile: apps/auth/Dockerfile
+    env_file:
+      - ../apps/auth/.env
+    ports:
+      - 3001:3001
+
+  payments:
+    build:
+      context: ..
+      dockerfile: apps/payments/Dockerfile
+    env_file:
+      - ../apps/payments/.env
+    ports:
+      - 3003:3003
+
+  notifications:
+    build:
+      context: ..
+      dockerfile: apps/notifications/Dockerfile
+    env_file:
+      - ../apps/notifications/.env
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - 5672:5672
+      - 15672:15672
