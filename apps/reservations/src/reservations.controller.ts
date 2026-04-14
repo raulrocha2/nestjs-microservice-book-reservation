@@ -17,9 +17,17 @@ import { CurrentUser, JwtAuthGuard, type UserDto } from '@app/common';
 export class ReservationsController {
   constructor(private readonly reservationsService: ReservationsService) {}
 
+  @Get('health-check')
+  healthCheck() {
+    return { status: 'ok' };
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() createReservationDto: CreateReservationDto, @CurrentUser() user: UserDto) {
+  create(
+    @Body() createReservationDto: CreateReservationDto,
+    @CurrentUser() user: UserDto,
+  ) {
     return this.reservationsService.create(createReservationDto, user);
   }
 

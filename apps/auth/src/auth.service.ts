@@ -8,7 +8,10 @@ import { UserDto } from '@app/common';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly configService: ConfigService, private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async login(user: UserDto, res: Response) {
     const tokenPayload: TokenPayload = {
@@ -16,7 +19,9 @@ export class AuthService {
       email: user.email,
     };
     const expires = new Date();
-    expires.setSeconds(expires.getSeconds() + this.configService.get('JWT_EXPIRATION'));
+    expires.setSeconds(
+      expires.getSeconds() + this.configService.get('JWT_EXPIRATION'),
+    );
     const token = await this.jwtService.signAsync(tokenPayload, {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: `${this.configService.get('JWT_EXPIRATION')}s`,
@@ -25,6 +30,6 @@ export class AuthService {
       httpOnly: true,
       expires,
     });
-    return user;
+    return token;
   }
 }

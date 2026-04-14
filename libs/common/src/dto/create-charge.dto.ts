@@ -1,6 +1,10 @@
 import { Type } from 'class-transformer';
-import { IsDefined, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested } from 'class-validator';
-import Stripe from 'stripe';
+import {
+  IsDefined,
+  IsNotEmpty,
+  IsNotEmptyObject,
+  ValidateNested,
+} from 'class-validator';
 import { CardDto } from './card.dto';
 
 export class CreateChargeDto {
