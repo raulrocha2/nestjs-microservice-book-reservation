@@ -21,10 +21,12 @@ async function bootstrap() {
     },
   });
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useLogger(app.get(Logger));
   await app.startAllMicroservices();
   await app.listen(configService.get('HTTP_PORT') as number);
-  console.info(`Auth service is running on port ${configService.get('HTTP_PORT')}`);
+  console.info(
+    `Auth service is running on port ${configService.get('HTTP_PORT')}`,
+  );
 }
 bootstrap();

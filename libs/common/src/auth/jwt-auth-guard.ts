@@ -33,7 +33,6 @@ export class JwtAuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
     return this.authClient
       .send('authenticate', {
         Authentication: token,
@@ -41,7 +40,9 @@ export class JwtAuthGuard implements CanActivate {
       .pipe(
         tap((res) => {
           if (roles) {
-            const hasRole = roles.some((role) => res.roles.includes(role));
+            const hasRole = res.roles
+              .map((role) => role.name)
+              .some((role) => roles.includes(role));
             if (!hasRole) {
               this.logger.error(
                 `User ${res.email} does not have the required role ${roles.join(', ')}`,

@@ -50,12 +50,14 @@ services:
     volumes:
       - .:/usr/src/app
 
-  mongo:
-    image: mongo
+  my-sql:
+    image: mysql
     ports:
-      - 27017:27017
+      - 3306:3306
     volumes:
-      - ./mongo-data:/data/db
+      - ./my-sql-data:/var/lib/mysql
+    env_file:
+      - .env
   rabbitmq:
     image: rabbitmq:management
     ports:

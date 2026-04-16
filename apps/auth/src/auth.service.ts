@@ -14,7 +14,7 @@ export class AuthService {
 
   async login(user: UserDto, res: Response) {
     const tokenPayload: TokenPayload = {
-      userId: user.id,
+      userId: String(user.id),
       email: user.email,
     };
     const expires = new Date();
