@@ -6,21 +6,27 @@ import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(NotificationsModule);
-    const configService = app.get(ConfigService);
-    app.connectMicroservice({
-      transport: Transport.RMQ,
-      options: {
-        urls: [configService.getOrThrow('RABBITMQ_URI')],
-        queue: configService.getOrThrow('RABBITMQ_QUEUE'),
-        noAck: false,
-        prefetchCount: 1,
-        queueOptions: {
-          durable: true,
-        },
+  const configService = app.get(ConfigService);
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [configService.getOrThrow('RABBITMQ_URI')],
+      queue: configService.getOrThrow('RABBITMQ_QUEUE'),
+      noAck: false,
+      prefetchCount: 1,
+      queueOptions: {
+        durable: true,
       },
-    });
-    app.useLogger(app.get(Logger));
-    await app.startAllMicroservices();
-    console.info(`Notifications RMQ microservice is listening on queue: ${configService.getOrThrow('RABBITMQ_QUEUE')}`);
+    },
+  });
+  app.useLogger(app.get(Logger));
+  await app.startAllMicroservices();
+  console.info(
+    `Notifications RMQ microservice is listening on queue: ${configService.getOrThrow('RABBITMQ_QUEUE')}`,
+  );
+  await app.listen(configService.get('NOTIFICATIONS_PORT') as number);
+  console.info(
+    `Notifications service is running on port ${configService.get('NOTIFICATIONS_PORT')}`,
+  );
 }
 bootstrap();

@@ -6,6 +6,9 @@ import * as Joi from 'joi';
 import { LoggerModule } from '@app/common/logger';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NOTIFICATIONS_SERVICE } from '@app/common/constants/services';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from '@app/common';
 
 @Module({
   imports: [
@@ -18,26 +21,35 @@ import { NOTIFICATIONS_SERVICE } from '@app/common/constants/services';
         RABBITMQ_QUEUE: Joi.string().required(),
       }),
     }),
-    LoggerModule, 
-     ClientsModule.registerAsync([
-          {
-            name: NOTIFICATIONS_SERVICE,
-            useFactory: (configService: ConfigService) => ({
-              transport: Transport.RMQ,
-              options: {
-                urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
-                queue: configService.getOrThrow<string>('RABBITMQ_NOTIFICATIONS_QUEUE'),
-                persistent: true,
-                queueOptions: {
-                  durable: true,
-                },
-              },
-            }),
-            inject: [ConfigService],
-          }
-        ]),
-      ],
+    LoggerModule,
+    ClientsModule.registerAsync([
+      {
+        name: NOTIFICATIONS_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
+            queue: configService.getOrThrow<string>(
+              'RABBITMQ_NOTIFICATIONS_QUEUE',
+            ),
+            persistent: true,
+            queueOptions: {
+              durable: true,
+            },
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
+    PrometheusModule.register(),
+  ],
   controllers: [PaymentsController],
-  providers: [PaymentsService],
+  providers: [
+    PaymentsService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class PaymentsModule {}

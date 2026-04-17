@@ -20,6 +20,12 @@ async function bootstrap() {
   });
   app.useLogger(app.get(Logger));
   await app.startAllMicroservices();
-  console.info(`Payments RMQ microservice is listening on queue: ${configService.getOrThrow('RABBITMQ_QUEUE')}`);
+  console.info(
+    `Payments RMQ microservice is listening on queue: ${configService.getOrThrow('RABBITMQ_QUEUE')}`,
+  );
+  await app.listen(configService.get('PAYMENTS_PORT') as number);
+  console.info(
+    `Payments service is running on port ${configService.get('PAYMENTS_PORT')}`,
+  );
 }
 bootstrap();

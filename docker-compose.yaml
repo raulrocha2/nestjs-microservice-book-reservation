@@ -45,8 +45,8 @@ services:
     command: pnpm run start:dev notifications
     env_file:
       - apps/notifications/.env
-    # ports:
-    #   - 3001:3001
+    ports:
+      - 3004:3004
     volumes:
       - .:/usr/src/app
 
@@ -70,3 +70,58 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3010:3000
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP}
+      - GF_INSTALL_PLUGINS=${GF_INSTALL_PLUGINS}
+    depends_on:
+      - prometheus
+      - my-sql
+      - rabbitmq
+      - reservations
+      - auth
+      - payments
+      - notifications
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - my-sql
+      - rabbitmq
+      - reservations
+      - auth
+      - payments
+      - notifications
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - 3100:3100
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yaml
+    command: -config.file=/etc/promtail/config.yaml
+    depends_on:
+      - loki

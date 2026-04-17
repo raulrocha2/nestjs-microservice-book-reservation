@@ -8,7 +8,13 @@ import { LoggerModule } from '@app/common/logger';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common';
+import {
+  AUTH_SERVICE,
+  LoggingInterceptor,
+  PAYMENTS_SERVICE,
+} from '@app/common';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -61,8 +67,16 @@ import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common';
         inject: [ConfigService],
       },
     ]),
+    PrometheusModule.register(),
   ],
   controllers: [ReservationsController],
-  providers: [ReservationsService, ReservationsRepository],
+  providers: [
+    ReservationsService,
+    ReservationsRepository,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class ReservationsModule {}

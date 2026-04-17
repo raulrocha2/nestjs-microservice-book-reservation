@@ -10,6 +10,8 @@ import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { RolesService } from './roles.service';
 import { RolesRepository } from './roles.repository';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from '@app/common';
 @Module({
   imports: [
     DatabaseModule,
@@ -28,7 +30,16 @@ import { RolesRepository } from './roles.repository';
     LoggerModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService, UsersRepository, RolesService, RolesRepository],
+  providers: [
+    UsersService,
+    UsersRepository,
+    RolesService,
+    RolesRepository,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
   exports: [UsersService],
 })
 export class UsersModule {}

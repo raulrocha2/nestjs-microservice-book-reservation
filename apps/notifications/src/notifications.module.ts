@@ -4,6 +4,9 @@ import { NotificationsService } from './notifications.service';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from '@app/common/logger';
 import * as Joi from 'joi';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { LoggingInterceptor } from '@app/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -21,8 +24,15 @@ import * as Joi from 'joi';
       }),
     }),
     LoggerModule,
+    PrometheusModule.register(),
   ],
   controllers: [NotificationsController],
-  providers: [NotificationsService],
+  providers: [
+    NotificationsService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class NotificationsModule {}
