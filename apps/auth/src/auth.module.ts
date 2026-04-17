@@ -8,11 +8,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from '@app/common';
 @Module({
-  imports: [UsersModule, LoggerModule, JwtModule.registerAsync({
-    useFactory: (configService: ConfigService) => ({
-      secret: configService.get('JWT_SECRET') as string,
-      signOptions: { expiresIn: `${configService.get('JWT_EXPIRATION')}s` } as JwtSignOptions,
+  imports: [
+    UsersModule,
+    LoggerModule,
+    JwtModule.registerAsync({
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('JWT_SECRET') as string,
+        signOptions: {
+          expiresIn: `${configService.get('JWT_EXPIRATION')}s`,
+        } as JwtSignOptions,
       }),
       inject: [ConfigService],
     }),
@@ -26,9 +34,18 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         HTTP_PORT: Joi.number().required(),
       }),
     }),
+    PrometheusModule.register(),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -8,9 +8,11 @@ COPY pnpm-lock.yaml ./
 COPY tsconfig.json tsconfig.json
 COPY nest-cli.json nest-cli.json
 
+COPY apps/notifications/package.json apps/notifications/package.json
+
 RUN npm install -g pnpm
 
-RUN pnpm install
+RUN pnpm install -r
 
 COPY apps/notifications apps/notifications
 COPY libs libs
@@ -27,9 +29,11 @@ WORKDIR /usr/src/app
 COPY package.json ./
 COPY pnpm-lock.yaml ./
 
+COPY apps/notifications/package.json apps/notifications/package.json
+
 RUN npm install -g pnpm
 
-RUN pnpm install --prod
+RUN pnpm install -r --prod
 
 COPY --from=development /usr/src/app/dist ./dist
 

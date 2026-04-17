@@ -2,6 +2,8 @@
 /dist
 /node_modules
 /build
+**/node_modules
+**/dist
 
 # Logs
 logs
@@ -57,3 +59,9 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 mongo-data/
 rabbitmq-data/
+grafana-data/
+my-sql-data/
+
+# Helm secret overrides (never commit real passwords)
+values.secrets.yaml
+**/values.secrets.yaml
