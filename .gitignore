@@ -61,3 +61,7 @@ mongo-data/
 rabbitmq-data/
 grafana-data/
 my-sql-data/
+
+# Helm secret overrides (never commit real passwords)
+values.secrets.yaml
+**/values.secrets.yaml

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: authentication
+  name: authentication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: authentication
+    spec:
+      containers:
+      - image: authentication.azurecr.io/production/auth:latest
+        name: authentication
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        envFrom:
+          - secretRef:
+              name: mysql
+          - secretRef:
+              name: auth
+        env:
+          - name: MYSQL_HOST
+            value: mysql
+          - name: MYSQL_PORT
+            value: "3306"
+          - name: MYSQL_SYNCHRONIZE
+            value: "false"
+          - name: JWT_EXPIRATION
+            value: "3600"
+          - name: TCP_PORT
+            value: "3002"
+          - name: HTTP_PORT
+            value: "3001"
+          - name: MONGODB_URI
+            value: mongodb://mongodb:27017/sleepr
+          - name: RABBITMQ_URI
+            value: amqp://sleepr:sleepr@sleepr-rabbitmq:5672
+          - name: RABBITMQ_QUEUE
+            value: auth
